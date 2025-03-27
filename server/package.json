@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "engines": {
-    "node": ">=14.0.0"
+    "node": "18.x"
   },
   "scripts": {
     "start": "node index.js",
+    "build": "npm install",
     "dev": "nodemon index.js"
   },
   "keywords": [],
