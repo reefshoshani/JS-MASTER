@@ -1,15 +1,18 @@
-require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const socketIo = require('socket.io');
 const cors = require('cors');
-const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
+const dotenv = require('dotenv');
+const initializeDatabase = require('./init/initialData');
+
+dotenv.config();
 
 const app = express();
-const server = require('http').createServer(app);
+const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: process.env.CLIENT_URL || "*",
+        origin: process.env.CLIENT_URL || "http://localhost:3000",
         methods: ["GET", "POST"]
     }
 });
@@ -18,30 +21,25 @@ const io = socketIo(server, {
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the React app in production
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/build')));
-}
-
-// MongoDB connection
+// MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/code-blocks')
-    .then(() => console.log('Connected to MongoDB'))
+    .then(() => {
+        console.log('Connected to MongoDB');
+        initializeDatabase();
+    })
     .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
-const codeBlocksRouter = require('./routes/codeBlocks');
-app.use('/api/code-blocks', codeBlocksRouter);
-
-// Initialize database with code blocks
-const { initializeDatabase } = require('./init/initialData');
-initializeDatabase();
+const codeBlockRoutes = require('./routes/codeBlocks');
+app.use('/api/code-blocks', codeBlockRoutes);
 
 // Socket.io connection handling
-const connectedUsers = new Map();
-const mentors = new Map();
+const connectedUsers = new Map(); 
+const mentors = new Map(); 
 
 io.on('connection', (socket) => {
-    // Join room
+    console.log('New client connected');
+
     socket.on('join-room', (roomId) => {
         socket.join(roomId);
         const roomUsers = connectedUsers.get(roomId) || new Set();
@@ -53,32 +51,34 @@ io.on('connection', (socket) => {
         if (isMentor) {
             mentors.set(roomId, socket.id);
         }
-
+        
         socket.emit('role-assigned', { isMentor });
         io.to(roomId).emit('user-count', roomUsers.size);
     });
 
-    // Handle messages
+    // Chat message handling
     socket.on('send-message', ({ roomId, message, sender, role }) => {
-        io.to(roomId).emit('receive-message', {
+        console.log('Server received message:', { roomId, message, sender, role });
+        const messageData = {
             message,
             sender,
             role,
-            timestamp: new Date()
-        });
+            timestamp: new Date().toISOString()
+        };
+        console.log('Server sending message to room:', roomId, messageData);
+        io.to(roomId).emit('receive-message', messageData);
     });
 
-    // Handle code changes
     socket.on('code-change', ({ roomId, code }) => {
-        socket.to(roomId).emit('code-update', code);
+        io.to(roomId).emit('code-update', code);
     });
 
-    // Handle disconnection
     socket.on('disconnect', () => {
+        // Check all rooms for the disconnected user
         connectedUsers.forEach((users, roomId) => {
             if (users.has(socket.id)) {
                 users.delete(socket.id);
-
+                
                 // If mentor disconnected
                 if (mentors.get(roomId) === socket.id) {
                     mentors.delete(roomId);
@@ -94,13 +94,6 @@ io.on('connection', (socket) => {
         });
     });
 });
-
-// Catch all other routes in production and return the React app
-if (process.env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../client/build/index.html'));
-    });
-}
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

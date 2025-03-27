@@ -23,10 +23,6 @@ const ChatMessage = ({ message, isSelf }) => (
     </div>
 ); // the chat is basic - it can be improved further
 
-// API URL from environment variable
-const API_URL = process.env.REACT_APP_API_URL || '';
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || '';
-
 const CodeBlock = () => {
     // state management
     const { title } = useParams();
@@ -49,7 +45,7 @@ const CodeBlock = () => {
     useEffect(() => {
         const getCodeBlock = async () => {
             try {
-                const response = await axios.get(`${API_URL}/api/code-blocks/${encodeURIComponent(title)}`);
+                const response = await axios.get(`http://localhost:5000/api/code-blocks/${encodeURIComponent(title)}`);
                 setCodeBlock(response.data);
                 setCode(response.data.initialCode);
             } catch (error) {
@@ -62,7 +58,7 @@ const CodeBlock = () => {
 
     // Socket connection
     useEffect(() => {
-        socketRef.current = io(SOCKET_URL);
+        socketRef.current = io('http://localhost:5000');
         socketRef.current.emit('join-room', title);
 
         // Socket event handlers
