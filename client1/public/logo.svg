@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+  <rect width="64" height="64" fill="#EF3340"/>
+  <rect y="16" width="64" height="8" fill="#FFFFFF"/>
+  <rect y="24" width="64" height="16" fill="#00247D"/>
+  <rect y="40" width="64" height="8" fill="#FFFFFF"/>
+  <rect y="48" width="64" height="16" fill="#EF3340"/>
+  <text x="32" y="42" font-size="24" font-family="Arial, sans-serif"
+        fill="white" text-anchor="middle" font-weight="bold">
+    JS
+  </text>
+</svg>
