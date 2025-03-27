@@ -2,10 +2,12 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js",
-    "build": "echo 'No build step needed'"
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
