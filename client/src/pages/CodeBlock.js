@@ -5,7 +5,7 @@ import CodeMirror from '@uiw/react-codemirror';
 import { javascript } from '@codemirror/lang-javascript';
 import { io } from 'socket.io-client';
 
-// Simple message component for chat
+// chat message componnet - bonus
 const ChatMessage = ({ message, isSelf }) => (
     <div className={`flex ${isSelf ? 'justify-end' : 'justify-start'} mb-4`}>
         <div className={`rounded-lg px-4 py-2 max-w-[70%] ${
@@ -21,10 +21,10 @@ const ChatMessage = ({ message, isSelf }) => (
             </div>
         </div>
     </div>
-);
+); // the chat is basic - it can be improved further
 
 const CodeBlock = () => {
-    // Basic state management
+    // state management
     const { title } = useParams();
     const navigate = useNavigate();
     const [codeBlock, setCodeBlock] = useState(null);
@@ -33,9 +33,9 @@ const CodeBlock = () => {
     const [userCount, setUserCount] = useState(0);
     const [showSuccess, setShowSuccess] = useState(false);
     const [currentHintIndex, setCurrentHintIndex] = useState(-1);
+    const [showHint, setShowHint] = useState(false);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [showHint, setShowHint] = useState(false);
     
     // Refs
     const socketRef = useRef();
@@ -85,7 +85,7 @@ const CodeBlock = () => {
         }
     }, [messages]);
 
-    // Handle code changes
+    // Handling code changes
     const handleCodeChange = (value) => {
         setCode(value);
         socketRef.current.emit('code-change', { roomId: title, code: value });
@@ -99,7 +99,7 @@ const CodeBlock = () => {
             if (userCode === solutionCode) {
                 setShowSuccess(true);
                 
-                // Create and show the success emoji
+                // Create and show the success smilie
                 const successEmoji = document.createElement('div');
                 Object.assign(successEmoji.style, {
                     position: 'fixed',
@@ -115,8 +115,7 @@ const CodeBlock = () => {
                 successEmoji.textContent = '😊';
                 document.body.appendChild(successEmoji);
 
-                // Simple fade in/out animation
-                requestAnimationFrame(() => {
+                requestAnimationFrame(() => {         // fade in/out animation
                     successEmoji.style.opacity = '1';
                     setTimeout(() => {
                         successEmoji.style.opacity = '0';

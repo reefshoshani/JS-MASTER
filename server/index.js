@@ -34,8 +34,8 @@ const codeBlockRoutes = require('./routes/codeBlocks');
 app.use('/api/code-blocks', codeBlockRoutes);
 
 // Socket.io connection handling
-const connectedUsers = new Map(); // roomId -> Set of socket ids
-const mentors = new Map(); // roomId -> mentor socket id
+const connectedUsers = new Map(); 
+const mentors = new Map(); 
 
 io.on('connection', (socket) => {
     console.log('New client connected');
@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
         roomUsers.add(socket.id);
         connectedUsers.set(roomId, roomUsers);
 
-        // Assign role (first user is mentor)
+        // Assign role - first user is mentor
         const isMentor = !mentors.has(roomId);
         if (isMentor) {
             mentors.set(roomId, socket.id);
@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('user-count', roomUsers.size);
     });
 
-    // Add chat message handling
+    // Chat message handling
     socket.on('send-message', ({ roomId, message, sender, role }) => {
         console.log('Server received message:', { roomId, message, sender, role });
         const messageData = {

@@ -42,7 +42,7 @@ const Lobby = () => {
                         Choose code block
                     </h1>
                     <p className="text-xl text-gray-600">
-                        Master Your JavaScript Skills Through Interactive Challenges
+                        Master Your JavaScript Skills With Tom Help
                     </p>
                 </div>
                 

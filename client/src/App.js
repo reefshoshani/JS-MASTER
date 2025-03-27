@@ -12,7 +12,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Lobby />} />
                     <Route path="/code-block/:title" element={<CodeBlock />} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />     // i would add a 404 page here if i had more time
                 </Routes>
             </div>
         </Router>
