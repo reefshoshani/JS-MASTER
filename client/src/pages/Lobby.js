@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'https://js-master.onrender.com';
+
 const Lobby = () => {
     const [codeBlocks, setCodeBlocks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -11,9 +13,23 @@ const Lobby = () => {
     useEffect(() => {
         const fetchCodeBlocks = async () => {
             try {
-                console.log('Attempting to fetch from:', process.env.REACT_APP_API_URL);
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/code-blocks`);
+                console.log('Environment variables:', {
+                    REACT_APP_API_URL: process.env.REACT_APP_API_URL,
+                    API_URL
+                });
+                
+                const fullUrl = `${API_URL}/api/code-blocks`;
+                console.log('Attempting to fetch from:', fullUrl);
+                
+                const response = await axios.get(fullUrl, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
                 console.log('Server response:', response.data);
+                
                 if (response.data && Array.isArray(response.data)) {
                     setCodeBlocks(response.data);
                 } else {
@@ -23,10 +39,11 @@ const Lobby = () => {
             } catch (error) {
                 const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
                 setError(`Connection error: ${errorMessage}`);
-                console.error('Error details:', {
+                console.error('Full error details:', {
                     message: error.message,
                     response: error.response,
-                    config: error.config
+                    config: error.config,
+                    stack: error.stack
                 });
             } finally {
                 setLoading(false);
