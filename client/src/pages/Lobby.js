@@ -11,7 +11,9 @@ const Lobby = () => {
     useEffect(() => {
         const fetchCodeBlocks = async () => {
             try {
+                console.log('Attempting to fetch from:', process.env.REACT_APP_API_URL);
                 const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/code-blocks`);
+                console.log('Server response:', response.data);
                 if (response.data && Array.isArray(response.data)) {
                     setCodeBlocks(response.data);
                 } else {
@@ -20,8 +22,12 @@ const Lobby = () => {
                 }
             } catch (error) {
                 const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
-                setError(errorMessage);
-                console.error('Error fetching code blocks:', error);
+                setError(`Connection error: ${errorMessage}`);
+                console.error('Error details:', {
+                    message: error.message,
+                    response: error.response,
+                    config: error.config
+                });
             } finally {
                 setLoading(false);
             }
