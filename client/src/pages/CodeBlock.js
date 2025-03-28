@@ -36,6 +36,7 @@ const CodeBlock = () => {
     const [showHint, setShowHint] = useState(false);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
+    const [error, setError] = useState('');
     
     // Refs
     const socketRef = useRef();
@@ -58,7 +59,23 @@ const CodeBlock = () => {
 
     // Socket connection
     useEffect(() => {
-        socketRef.current = io(process.env.REACT_APP_SOCKET_URL);
+        socketRef.current = io(process.env.REACT_APP_SOCKET_URL, {
+            transports: ['websocket'],
+            upgrade: false,
+            withCredentials: true,
+            forceNew: true,
+            path: '/socket.io/',
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000
+        });
+        
+        socketRef.current.on('connect_error', (error) => {
+            console.error('Socket connection error:', error);
+            setError('Failed to connect to server. Please try again.');
+        });
+
         socketRef.current.emit('join-room', title);
 
         // Socket event handlers
@@ -75,7 +92,11 @@ const CodeBlock = () => {
             navigate('/');
         });
 
-        return () => socketRef.current.disconnect();
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+        };
     }, [title, navigate, codeBlock]);
 
     // Auto-scroll chat
@@ -255,6 +276,11 @@ const CodeBlock = () => {
                     </div>
                 </div>
             </div>
+            {error && (
+                <div className="error-message">
+                    {error}
+                </div>
+            )}
         </div>
     );
 };

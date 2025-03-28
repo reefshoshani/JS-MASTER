@@ -10,15 +10,42 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+
+// CORS configuration
+const allowedOrigins = [
+    'https://js-master-xi.vercel.app',
+    'http://localhost:3000',
+    'https://js-master.onrender.com'
+];
+
+// Configure Socket.IO with CORS
 const io = socketIo(server, {
     cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:3000",
-        methods: ["GET", "POST"]
-    }
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true,
+        allowedHeaders: ["Content-Type"]
+    },
+    transports: ['websocket'],
+    path: '/socket.io/'
 });
 
-// Middleware
-app.use(cors());
+// Configure Express CORS
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) === -1) {
+            return callback(new Error('CORS policy violation'), false);
+        }
+        return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization']
+}));
+
 app.use(express.json());
 
 // MongoDB Connection

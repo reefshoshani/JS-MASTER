@@ -5,7 +5,7 @@ const CodeBlock = require('../models/CodeBlock');
 // Get all of the code blocks
 router.get('/', async (req, res) => {
     try {
-        const codeBlocks = await CodeBlock.find({}, 'title description');
+        const codeBlocks = await CodeBlock.find({}, 'title description initialCode');
         res.json(codeBlocks);
     } catch (error) {
         res.status(500).json({ message: error.message });
