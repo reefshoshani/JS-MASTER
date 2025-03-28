@@ -45,7 +45,7 @@ const CodeBlock = () => {
     useEffect(() => {
         const getCodeBlock = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/code-blocks/${encodeURIComponent(title)}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/code-blocks/${encodeURIComponent(title)}`);
                 setCodeBlock(response.data);
                 setCode(response.data.initialCode);
             } catch (error) {
@@ -58,7 +58,7 @@ const CodeBlock = () => {
 
     // Socket connection
     useEffect(() => {
-        socketRef.current = io('http://localhost:5000');
+        socketRef.current = io(process.env.REACT_APP_SOCKET_URL);
         socketRef.current.emit('join-room', title);
 
         // Socket event handlers
