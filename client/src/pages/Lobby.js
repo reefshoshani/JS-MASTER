@@ -5,16 +5,24 @@ import axios from 'axios';
 const Lobby = () => {
     const [codeBlocks, setCodeBlocks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCodeBlocks = async () => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/code-blocks`);
-                setCodeBlocks(response.data);
-                setLoading(false);
+                if (response.data && Array.isArray(response.data)) {
+                    setCodeBlocks(response.data);
+                } else {
+                    setError('Invalid data format received from server');
+                    console.error('Invalid data format:', response.data);
+                }
             } catch (error) {
+                const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
+                setError(errorMessage);
                 console.error('Error fetching code blocks:', error);
+            } finally {
                 setLoading(false);
             }
         };
@@ -30,6 +38,23 @@ const Lobby = () => {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Code Blocks</h2>
+                    <p className="text-gray-600">{error}</p>
+                    <button 
+                        onClick={() => window.location.reload()} 
+                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
